@@ -1,100 +1,95 @@
-# MPI Pipeline Pattern Project
+# MPI Polynomial Pipeline Project
 
-## 1. Pattern Selection
+## Project Overview
 
-### Pattern: Linear Pipeline (Pattern #6)
+This project implements a **linear pipeline pattern** using MPI for parallel computation of polynomial values. The application distributes polynomial evaluation across multiple processes in a pipeline fashion, where each process computes a portion of the terms and passes the accumulated sum to the next process.
 
-**Student number:** `61`
+## Student Information
 
-**Calculation:**
-```
-pattern = ((number / 4) % 10) + 1
-        = ((61 / 4) % 10) + 1
-        = (15 % 10) + 1
-        = 5 + 1 = 6
-```
+- **Student**: Khasanova Uma, No. 61
+- **Pattern**: Linear Pipeline (#6)
+- **Data Type**: float
+- **Technology**: MPI (Message Passing Interface)
 
-**Pattern Description:**
-The linear pipeline pattern organizes processes in a chain where data flows sequentially from process 0 to process N-1. Each process performs a specific computational stage and passes the result to the next process in the chain.
-This pattern is suitable for problems with natural sequental dependencies.
+## Prerequisites
 
-## 2. Task Selection
+### Required Software
+- MPI implementation (MPICH, OpenMPI, or Microsoft MPI)
+- C++ compiler with C++17 support
+- Make build system
 
-## Task: Computing the n-th Derivative of a Function Using Numerical Differentiation
+### Environment Variables Setup
 
-### Mathematical Problem Statement
-For a given function f(x) and integer n ≥ 1, compute the value of the n-th derivative at point x₀:
-```
-f⁽ⁿ⁾(x₀) = dⁿf/dxⁿ at x = x₀
-```
+**You must set the following environment variables before building and running:**
 
-### Numerical Method
-The second-order central difference formula is used:
-```
-f'(x) ≈ [f(x+h) - f(x-h)] / (2h)
-```
-where h is a small differentiation step.
-
-For higher-order derivatives, we apply the recursive scheme:
-```
-f⁽ᵏ⁾(x) ≈ [f⁽ᵏ⁻¹⁾(x+h) - f⁽ᵏ⁻¹⁾(x-h)] / (2h)
+#### For Linux/macOS:
+```bash
+export MPICXX=/path/to/your/mpicxx
+export MPIEXEC=/path/to/your/mpiexec
 ```
 
-### Example
-For the function f(x) = x³ + 2x² + 3x + 4:
-- f'(x) = 3x² + 4x + 3
-- f''(x) = 6x + 4  
-- f'''(x) = 6
-- f⁽⁴⁾(x) = 0
-
-At x = 1.0:
-- f'(1.0) = 3(1)² + 4(1) + 3 = 10.0
-- f''(1.0) = 6(1) + 4 = 10.0
-- f'''(1.0) = 6.0
-
-### Why This Task is Compatible with the Pipeline Pattern
-
-#### 1. Natural Sequential Dependencies
-To compute the 2nd derivative, you first need the 1st derivative. To compute the 3rd derivative, you first need the 2nd derivative. Each computation step depends directly on the previous result.
-
-#### 2. Perfect Process Distribution
-```
-Process 0: f(x) → f'(x)     (1st derivative)
-Process 1: f'(x) → f''(x)   (2nd derivative) 
-Process 2: f''(x) → f'''(x) (3rd derivative)
-...
-Process k: f⁽ᵏ⁾(x) → f⁽ᵏ⁺¹⁾(x) ((k+1)-th derivative)
+#### For Windows (Command Prompt):
+```cmd
+set MPICXX=C:\Path\To\mpicxx.exe
+set MPIEXEC=C:\Path\To\mpiexec.exe
 ```
 
-## 3. Data Type
+## Why Linear Pipeline Pattern is Suitable for This Task
 
-### Selected Data Type: float
+### Natural Data Flow Dependencies
 
-**Calculation:**
+The linear pipeline pattern is perfectly suited for polynomial evaluation due to the **inherently sequential nature** of accumulation operations. Polynomial computation requires summing terms in a specific order, creating natural data dependencies that align perfectly with the pipeline paradigm:
+
 ```
-data_type = (number % 4) + 1
-          = (61 % 4) + 1
-          = 1 + 1 = 2 (float)
+P(x) = a₀ + a₁·x + a₂·x² + ... + aₙ·xⁿ
 ```
 
-**Implementation Details:**
-- All floating-point calculations use `float` precision
-- MPI data type: `MPI_FLOAT`
-- Function inputs and outputs are `float` type
-- Intermediate results stored as `float`
+## Project Functionality
 
-**Advantages for This Task:**
-- Sufficient precision for numerical differentiation
-- Lower memory footprint compared to double precision
-- Faster computation on many architectures
-- Matches the precision requirements of the central difference method
+### Core Features
 
-### Implementation Specifics
-- **Student Number**: 61
-- **MPI Pattern**: #6 (Linear Pipeline)
-- **Data Type**: `float`
-- **Function**: f(x) = x³ + 2x² + 3x + 4
-- **Test Point**: x = 1.0
-- **Step Size**: h = 0.0001
+**Polynomial Representation**
+   - Stores coefficients as `[a0, a1, a2, ...]` for polynomial: a0 + a1*x + a2*x² + ...
+   - Supports polynomials of any degree
+   - Provides string representation for display
 
-This combination provides an excellent demonstration of the pipeline pattern while solving a meaningful mathematical problem with appropriate numerical precision and clear real-world applications in scientific computing.
+**Parallel Evaluation**
+   - Distributes polynomial terms across multiple MPI processes
+   - Each process computes its assigned terms
+   - Accumulates results in a pipeline fashion
+
+### Mathematical Basis
+
+The project evaluates polynomials using the standard form:
+```
+P(x) = a0 + a1*x + a2*x² + a3*x³ + ... + an*xⁿ
+```
+
+Each process in the pipeline computes:
+```
+partial_sum = Σ(ai * xⁱ) for assigned terms i
+```
+
+## Build Instructions
+
+### Available Make Targets
+
+```bash
+# Build the project
+make all
+
+# Clean build artifacts
+make clean
+
+# Run with custom parameters
+make run-custom processes=4 x=2.0 coeffs='1 2 3 4'
+
+# Run predefined example
+make run-example
+
+# Display build information
+make info
+
+# Show help message
+make help
+```
